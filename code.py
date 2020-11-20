@@ -12,9 +12,13 @@ eps=0.1
 max_iter=20
 #kmeans重复次数3
 re_kmeans=3
+#训练集大小
+train_set_size = 150
+#类别数
+type_num = 15
+
 
 def trainSet2featureSet():
-        num_classes = 15
         central_points = []
         #根据文件夹名确定类别名
         classes = os.listdir('./data/')
@@ -24,9 +28,10 @@ def trainSet2featureSet():
         for i,path in enumerate(class_data_paths):
                 img_names = os.listdir(path)
                 #不知道为什么每次都有一个Thumbs.db……
-                img_names.remove('Thumbs.db')
+                if 'Thumbs.db' in img_names:
+                    img_names.remove('Thumbs.db')
                 img_names.sort()
-                img_names = img_names[:150]
+                img_names = img_names[:train_set_size]
                 print(path)
                 for img_name in tqdm(img_names):
                         img = cv2.imread(path+img_name,cv2.IMREAD_GRAYSCALE)
@@ -64,16 +69,19 @@ def trainSVM():
                 class_img_path = "./data/" + name + "/"
                 labels, centers = np.load("./vocabulary/" + name + ".npy",allow_pickle=True)
                 img_names = os.listdir(class_img_path)
-                img_names.remove('Thumbs.db')
+                if 'Thumbs.db' in img_names:
+                    img_names.remove('Thumbs.db')
                 img_names.sort()
-                #取前150张做训练集
-                img_names = img_names[:150]
+                img_names = img_names[:train_set_size]
+                if len(img_name) != train_set_size:
+                    print('未填满训练集' + name)
+                    return
                 for img_name in img_names:
                         img = cv2.imread(class_img_path+img_name,cv2.IMREAD_GRAYSCALE)
                         _,des = SIFT.detectAndCompute(img, None)
                         featVec = feature2vector(des, centers)
                         trainData = np.append(trainData, featVec, axis=0)
-                res = np.repeat(dictIdx, 150)
+                res = np.repeat(dictIdx, train_set_size)
                 response = np.append(response, res)
                 dictIdx += 1
         print("训练线性SVM")
@@ -99,10 +107,11 @@ def test():
                 class_img_path = "./data/" + name + "/"
                 labels, centers = np.load("./vocabulary/" + name + ".npy",allow_pickle=True)
                 img_names = os.listdir(class_img_path)
-                img_names.remove('Thumbs.db')
+                if 'Thumbs.db' in img_names:
+                    img_names.remove('Thumbs.db')
                 img_names.sort()
-                img_names = img_names[150:]
-                res = [0 for _ in range(15)]
+                img_names = img_names[train_set_size:]
+                res = [0 for _ in range(type_num)]
                 for img_name in img_names:
                         img = cv2.imread(class_img_path+img_name,cv2.IMREAD_GRAYSCALE)
                         _,des = SIFT.detectAndCompute(img, None)
