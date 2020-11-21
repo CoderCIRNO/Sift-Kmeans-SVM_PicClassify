@@ -1,13 +1,8 @@
 # 143  
 运行所需的目录结构  
   
-|---data---|---class1---image_0001.jpg, image_0002.jpg, ...  
-|	     |---class2---image_0001.jpg, ...  
-|	     |---class3---image_0001.jpg, ...  
-|	     |---   ...  
-|---features---!empty  
-|---vocabulary---!empty  
-|---code.py  
+code.py根目录下的data文件夹中放入数据集，分类别放入各自的文件夹  
+另外根目录下须新建两个文件夹features和vocabulary  
 
 # 更新历史  
 2020-11-20 增加了两个全局变量：训练集大小和类别数；现在如果某类别的训练集未填满，程序会报告；去除Thumbs.db前会先判断其是否存在
